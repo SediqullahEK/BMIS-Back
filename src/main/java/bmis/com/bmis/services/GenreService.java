@@ -8,7 +8,7 @@ import bmis.com.bmis.models.Genre;
 import bmis.com.bmis.models.dtos.GenreDto;
 
 public interface GenreService {
-    List<Genre> findAll();
+    List<GenreDto> findAll();
     Optional<Genre> findById(Long id);
     Genre save(GenreDto genreDto);
     void deleteById(Long id);

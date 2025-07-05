@@ -7,69 +7,65 @@ import bmis.com.bmis.services.PublisherService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/books")
+@RestController
+@RequestMapping("/api/books")
 public class BookController {
 
     @Autowired
-    private BookService bookService; 
+    private BookService bookService;
     @Autowired
     private GenreService genreService;
     @Autowired
-    private PublisherService publisherService; 
-    
-    @GetMapping("/list")
-    public String home(Model model, HttpServletRequest request) {
-        model.addAttribute("books", bookService.findAll());
-        return "books/list";
-    }
+    private PublisherService publisherService;
 
-    @GetMapping("/add")
-    public String addBook(Model model, HttpServletRequest request) {
-        model.addAttribute("genres", genreService.findAll());
-        model.addAttribute("publishers", publisherService.findAll());
-        model.addAttribute("bookDto", new BookDto());
-        model.addAttribute("pageTitle",  "Add new Book");
-        return "books/create";
+    @GetMapping("/list")
+    public List<BookDto> home(Model model, HttpServletRequest request) {
+        return bookService.findAll();
     }
 
     @PostMapping("/store")
-    public String storeBook(@Valid @ModelAttribute BookDto bookDto, BindingResult result, Model model) {
-        if (bookService.checkIfExists(bookDto)) {
-            result.addError(new FieldError("bookDto", "title", "This Book already exists"));
+    public ResponseEntity<Map<String, Object>> storeBook(@RequestBody String userRequest) throws Exception {
+        if (userRequest == null || userRequest.isEmpty()) {
+            throw new Exception("Invalid request data");
+        } else {
+            Gson g = new Gson();
+            BookDto bookDto = g.fromJson(userRequest, BookDto.class);
+            if (bookDto == null) {
+                throw new Exception("Invalid book data");
+            } else {
+                bookService.save(bookDto);
+            }
         }
-        if (result.hasErrors()) {
-            model.addAttribute("genres", genreService.findAll());
-            model.addAttribute("publishers", publisherService.findAll());
+        
 
-            return "books/create";
-        }
-        bookService.save(bookDto);
-       
-        return "redirect:/books/list";
+        return ResponseEntity.ok(null);
     }
 
-  
     @GetMapping("/edit")
     public String editBook(@RequestParam("id") Long id, Model model, HttpServletRequest request) {
-   
+
         BookDto bookDto = bookService.findDtoById(id);
 
-        model.addAttribute("bookDto",   bookDto);
-        model.addAttribute("genres",     genreService.findAll());
+        model.addAttribute("bookDto", bookDto);
+        model.addAttribute("genres", genreService.findAll());
         model.addAttribute("publishers", publisherService.findAll());
-        model.addAttribute("pageTitle",  "Edit Book");
+        model.addAttribute("pageTitle", "Edit Book");
 
         return "books/edit";
     }
-    
+
     @PostMapping("/update")
     public String updateBook(@Valid @ModelAttribute BookDto bookDto, BindingResult result, Model model) {
         if (result.hasErrors()) {

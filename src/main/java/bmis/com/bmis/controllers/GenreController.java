@@ -1,5 +1,7 @@
 package bmis.com.bmis.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,13 +9,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import bmis.com.bmis.models.dtos.BookDto;
 import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.services.GenreService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 
-@Controller
+@RestController
 @RequestMapping("/genres")
 public class GenreController {
 
@@ -21,17 +24,10 @@ public class GenreController {
     private GenreService genreService; 
 
     @GetMapping("/list")
-    public String home(Model model, HttpServletRequest request) {
-        model.addAttribute("genres", genreService.findAll());
-        return "genres/list"; 
+    public List<GenreDto> listAll(Model model, HttpServletRequest request) {
+        return genreService.findAll();
     }
    
-    @GetMapping("/add")
-    public String addGenre(Model model, HttpServletRequest request) {
-        model.addAttribute("genreDto", new GenreDto());
-        model.addAttribute("pageTitle",  "Add new Genre");
-        return "genres/create";
-    }
 
     @PostMapping("/store")
     public String storeGenre(@Valid @ModelAttribute GenreDto genreDto, BindingResult result, Model model) {

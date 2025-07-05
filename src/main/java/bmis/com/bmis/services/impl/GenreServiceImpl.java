@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import bmis.com.bmis.models.Genre;
+import bmis.com.bmis.models.dtos.BookDto;
 import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.repositories.GenreRepository;
 import bmis.com.bmis.services.GenreService;
@@ -11,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service 
 public class GenreServiceImpl implements GenreService { 
@@ -19,8 +21,10 @@ public class GenreServiceImpl implements GenreService {
     private GenreRepository genreRepository;
 
     @Override
-    public List<Genre> findAll() {
-        return genreRepository.findAll();
+    public List<GenreDto> findAll() {
+         return genreRepository.findAll().stream()
+                .map(GenreDto::new)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -59,9 +63,7 @@ public class GenreServiceImpl implements GenreService {
         Genre genre = genreRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Genre not found: " + id));
 
-        GenreDto dto = new GenreDto();
-        dto.setId(    genre.getId());
-        dto.setName( genre.getName());
+        GenreDto dto = new GenreDto(genre);
         return dto;
     }
 }
