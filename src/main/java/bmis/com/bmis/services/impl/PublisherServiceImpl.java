@@ -2,6 +2,7 @@ package bmis.com.bmis.services.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,11 @@ public class PublisherServiceImpl implements PublisherService {
      @Autowired
     private PublisherRepository publisherRepository;
 
-    @Override  
-    public List<Publisher> findAll() {
-        return publisherRepository.findAll();
+    @Override
+    public List<PublisherDto> findAll() {
+         return publisherRepository.findAll().stream()
+                .map(PublisherDto::new)
+                .collect(Collectors.toList());
     }
 
     @Override     
@@ -60,10 +63,8 @@ public class PublisherServiceImpl implements PublisherService {
         Publisher publisher = publisherRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Genre not found: " + id));
 
-        PublisherDto dto = new PublisherDto();
-        dto.setId(    publisher.getId());
-        dto.setName( publisher.getName());
-        dto.setAddress( publisher.getAddress());
+        PublisherDto dto = new PublisherDto(publisher);
+        
         return dto;
     }
 }

@@ -1,34 +1,28 @@
 package bmis.com.bmis.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.models.dtos.PublisherDto;
 import bmis.com.bmis.services.PublisherService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-@Controller
-@RequestMapping("/publishers")
+@RestController
+@RequestMapping("/api/publishers")
 public class PublisherController {
 
     @Autowired
     private PublisherService publisherService;
     @GetMapping("/list")
-    public String home(Model model) {
-        model.addAttribute("publishers", publisherService.findAll());
-        return "publishers/list";
-    }
-
-    @GetMapping("/add")
-    public String addPublisher(Model model, HttpServletRequest request) {
-        model.addAttribute("publisherDto", new PublisherDto());
-        model.addAttribute("pageTitle", "Add new Publisher");
-        return "publishers/create";
+    public List<PublisherDto> listAll() {
+        return publisherService.findAll();
     }
 
     @PostMapping("/store")

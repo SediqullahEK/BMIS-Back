@@ -7,7 +7,6 @@ import bmis.com.bmis.services.PublisherService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ public class BookController {
     private PublisherService publisherService;
 
     @GetMapping("/list")
-    public List<BookDto> home(Model model, HttpServletRequest request) {
+    public List<BookDto> home() {
         return bookService.findAll();
     }
 

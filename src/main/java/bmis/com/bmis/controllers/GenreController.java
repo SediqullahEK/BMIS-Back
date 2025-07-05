@@ -17,14 +17,14 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("/genres")
+@RequestMapping("/api/genres")
 public class GenreController {
 
     @Autowired
     private GenreService genreService; 
 
     @GetMapping("/list")
-    public List<GenreDto> listAll(Model model, HttpServletRequest request) {
+    public List<GenreDto> listAll() {
         return genreService.findAll();
     }
    
