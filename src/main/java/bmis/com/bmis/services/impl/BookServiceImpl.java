@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import bmis.com.bmis.models.Book;
@@ -29,11 +31,12 @@ public class BookServiceImpl implements BookService {
     private PublisherService publisherService;
 
     @Override
-    public List<BookDto> findAll() {
+    public Page<BookDto> findAll(Pageable pageable) {
 
-        return bookRepository.findAll().stream()
-                .map(BookDto::new)
-                .collect(Collectors.toList());
+        Page<Book> bookPage = bookRepository.findAll(pageable);
+
+        return bookPage.map(book -> new BookDto(book));
+        // Or more concisely: return bookPage.map(BookDto::new);
     }
 
     @Override
@@ -43,10 +46,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Map<String, Object> save(BookDto bookDto) {
-        Map<String, Object> data = new HashMap<>();
-        if (checkIfExists(bookDto)) {
-            data.put("status", "already exists");
+    public BookDto save(BookDto bookDto) {
+        if (checkIfExists(bookDto) && bookDto.getId() == null) {
+            throw new IllegalStateException("Book already exists");
         } else {
             Book book = (bookDto.getId() != null)
                     ? bookRepository.findById(bookDto.getId())
@@ -73,17 +75,16 @@ public class BookServiceImpl implements BookService {
                 book.setGenre(null);
             }
 
-            data.put("createdId", bookRepository.save(book).getId());
+            BookDto newDto = new BookDto(bookRepository.save(book));
+            return newDto;
         }
-
-        return data;
     }
 
     @Override
     public Boolean deleteById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found: " + id));
-        
+
         bookRepository.deleteById(book.getId());
         return true;
     }

@@ -13,9 +13,11 @@ import java.util.Map;
 import com.google.gson.Gson;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,12 +32,16 @@ public class BookController {
     private PublisherService publisherService;
 
     @GetMapping("/list")
-    public List<BookDto> home() {
-        return bookService.findAll();
+    public ResponseEntity<Page<BookDto>> listBooks(Pageable pageable) {
+
+        Page<BookDto> bookPage = bookService.findAll(pageable);
+
+        return ResponseEntity.ok(bookPage);
     }
 
     @PostMapping("/store")
-    public ResponseEntity<Map<String, Object>> storeBook(@RequestBody String userRequest) throws Exception {
+    public ResponseEntity<BookDto> storeBook(@RequestBody String userRequest) throws Exception {
+
         if (userRequest == null || userRequest.isEmpty()) {
             throw new Exception("Invalid request data");
         } else {
@@ -44,12 +50,10 @@ public class BookController {
             if (bookDto == null) {
                 throw new Exception("Invalid book data");
             } else {
-                bookService.save(bookDto);
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(bookService.save(bookDto));
             }
         }
-        
-
-        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/edit")
@@ -65,20 +69,23 @@ public class BookController {
         return "books/edit";
     }
 
-    @PostMapping("/update")
-    public String updateBook(@Valid @ModelAttribute BookDto bookDto, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("genres", genreService.findAll());
-            model.addAttribute("publishers", publisherService.findAll());
-            return "books/edit";
+    @PutMapping("/update/{id}")
+    public ResponseEntity<BookDto> updateBook(@RequestBody String userRequest, @PathVariable Long id) throws Exception {
+        if (userRequest == null || userRequest.isEmpty()) {
+            throw new Exception("Invalid request data");
         }
-        bookService.save(bookDto);
-        return "redirect:/books/list";
+        Gson g = new Gson();
+        BookDto bookDto = g.fromJson(userRequest, BookDto.class);
+        if (bookDto == null) {
+            throw new Exception("Invalid book data");
+        }
+        bookDto.setId(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.save(bookDto));
     }
 
-    @GetMapping("/delete")
-    public String deleteBook(@RequestParam("id") Long id) {
-        bookService.deleteById(id);
-        return "redirect:/books/list";
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteBook(@PathVariable Long id) {
+        
+       return ResponseEntity.status(HttpStatus.CREATED).body(bookService.deleteById(id));
     }
 }
