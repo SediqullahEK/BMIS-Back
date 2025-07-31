@@ -1,73 +1,65 @@
 package bmis.com.bmis.controllers;
-
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import bmis.com.bmis.models.dtos.BookDto;
+import com.google.gson.Gson;
+
 import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.services.GenreService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/api/genres")
 public class GenreController {
 
     @Autowired
-    private GenreService genreService; 
+    private GenreService genreService;
 
     @GetMapping("/list")
-    public List<GenreDto> listAll() {
-        return genreService.findAll();
+    public ResponseEntity<Page<GenreDto>> listGenres(Pageable pageable) {
+
+        Page<GenreDto> genrePage = genreService.findAll(pageable);
+
+        return ResponseEntity.ok(genrePage);
     }
-   
 
     @PostMapping("/store")
-    public String storeGenre(@Valid @ModelAttribute GenreDto genreDto, BindingResult result, Model model) {
-        if (genreService.checkIfExists(genreDto)) {
-            result.addError(new FieldError("genreDto", "name", "This Genre already exists"));
-        }
+    public ResponseEntity<GenreDto> storeGenre(@RequestBody String userRequest) throws Exception {
 
-        if (result.hasErrors()) {
-            model.addAttribute("genres", genreService.findAll());
-            return "genres/create";
+        if (userRequest == null || userRequest.isEmpty()) {
+            throw new Exception("Invalid request data");
+        } else {
+            Gson g = new Gson();
+            GenreDto genreDto = g.fromJson(userRequest, GenreDto.class);
+            if (genreDto == null) {
+                throw new Exception("Invalid genre data");
+            } else {
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(genreService.save(genreDto));
+            }
         }
-        genreService.save(genreDto);
-       
-        return "redirect:/genres/list";
     }
 
-  
-    @GetMapping("/edit")
-    public String editGenre(@RequestParam("id") Long id, Model model, HttpServletRequest request) {
-       
-        GenreDto genreDto = genreService.findDtoById(id);
-        model.addAttribute("genreDto",   genreDto);
-        model.addAttribute("pageTitle",  "Edit Genre");
-        return "genres/edit";
-    }
-
-    @PostMapping("/update")
-    public String updateGenre(@Valid @ModelAttribute GenreDto genreDto, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-           
-            return "genres/edit";
+    @PutMapping("/update/{id}")
+    public ResponseEntity<GenreDto> updateGenre(@RequestBody String userRequest, @PathVariable Long id) throws Exception {
+        if (userRequest == null || userRequest.isEmpty()) {
+            throw new Exception("Invalid request data");
         }
-
-        genreService.save(genreDto);
-        return "redirect:/genres/list";
+        Gson g = new Gson();
+        GenreDto genreDto = g.fromJson(userRequest, GenreDto.class);
+        if (genreDto == null) {
+            throw new Exception("Invalid genre data");
+        }
+        genreDto.setId(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(genreService.save(genreDto));
     }
 
-    @GetMapping("/delete")
-    public String deleteGenre(@RequestParam("id") Long id) {
-        genreService.deleteById(id);
-        return "redirect:/genres/list";
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteGenre(@PathVariable Long id) {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(genreService.deleteById(id));
     }
 }

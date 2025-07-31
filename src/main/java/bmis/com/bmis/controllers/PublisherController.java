@@ -3,12 +3,17 @@ package bmis.com.bmis.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import bmis.com.bmis.models.dtos.GenreDto;
+import com.google.gson.Gson;
+
 import bmis.com.bmis.models.dtos.PublisherDto;
 import bmis.com.bmis.services.PublisherService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,50 +25,50 @@ public class PublisherController {
 
     @Autowired
     private PublisherService publisherService;
+
     @GetMapping("/list")
-    public List<PublisherDto> listAll() {
-        return publisherService.findAll();
+    public ResponseEntity<Page<PublisherDto>> listGenres(Pageable pageable) {
+
+        Page<PublisherDto> genrePage = publisherService.findAll(pageable);
+
+        return ResponseEntity.ok(genrePage);
     }
 
     @PostMapping("/store")
-    public String storePublisher(@Valid @ModelAttribute PublisherDto publisherDto, BindingResult result, Model model) {
-        if (publisherService.checkIfExists(publisherDto)) {
-            result.addError(new FieldError("publisherDto", "name", "This Publisher already exists"));
-        }
+    public ResponseEntity<PublisherDto> storeGenre(@RequestBody String userRequest) throws Exception {
 
-        if (result.hasErrors()) {
-            model.addAttribute("publishers", publisherService.findAll());
-            return "publishers/create";
-        }
-        publisherService.save(publisherDto);
+        if (userRequest == null || userRequest.isEmpty()) {
+            throw new Exception("Invalid request data");
+        } else {
+            Gson g = new Gson();
+            PublisherDto PublisherDto = g.fromJson(userRequest, PublisherDto.class);
+            if (PublisherDto == null) {
+                throw new Exception("Invalid genre data");
+            } else {
 
-        return "redirect:/publishers/list";
+                return ResponseEntity.status(HttpStatus.CREATED).body(publisherService.save(PublisherDto));
+            }
+        }
     }
 
-    @GetMapping("/edit")
-    public String editPublisher(@RequestParam("id") Long id, Model model, HttpServletRequest request) {
-      
-        PublisherDto publisherDto = publisherService.findDtoById(id);
-        model.addAttribute("publisherDto", publisherDto);
-        model.addAttribute("pageTitle", "Edit Publisher");
-        return "publishers/edit";
-    }
-
-    @PostMapping("/update")
-    public String updatePublisher(@Valid @ModelAttribute PublisherDto publisherDto, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-
-            return "publishers/edit";
+    @PutMapping("/update/{id}")
+    public ResponseEntity<PublisherDto> updateGenre(@RequestBody String userRequest, @PathVariable Long id) throws Exception {
+        if (userRequest == null || userRequest.isEmpty()) {
+            throw new Exception("Invalid request data");
         }
-
-        publisherService.save(publisherDto);
-        return "redirect:/publishers/list";
+        Gson g = new Gson();
+        PublisherDto PublisherDto = g.fromJson(userRequest, PublisherDto.class);
+        if (PublisherDto == null) {
+            throw new Exception("Invalid genre data");
+        }
+        PublisherDto.setId(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(publisherService.save(PublisherDto));
     }
 
-    @GetMapping("/delete")
-    public String deletePublisher(@RequestParam("id") Long id) {
-        publisherService.deleteById(id);
-        return "redirect:/publishers/list";
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteGenre(@PathVariable Long id) {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(publisherService.deleteById(id));
     }
 
 }

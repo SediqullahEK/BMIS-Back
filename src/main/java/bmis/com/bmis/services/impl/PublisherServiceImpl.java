@@ -1,12 +1,9 @@
 package bmis.com.bmis.services.impl;
-
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import bmis.com.bmis.models.Publisher;
 import bmis.com.bmis.models.dtos.PublisherDto;
 import bmis.com.bmis.repositories.PublisherRepository;
@@ -20,33 +17,44 @@ public class PublisherServiceImpl implements PublisherService {
     private PublisherRepository publisherRepository;
 
     @Override
-    public List<PublisherDto> findAll() {
-         return publisherRepository.findAll().stream()
-                .map(PublisherDto::new)
-                .collect(Collectors.toList());
+    public Page<PublisherDto> findAll(Pageable pageable) {
+
+        Page<Publisher> publisherPage = publisherRepository.findAll(pageable);
+
+        return publisherPage.map(publisher -> new PublisherDto(publisher));
     }
+
 
     @Override     
     public Optional<Publisher> findById(Long id) {
         return publisherRepository.findById(id);
     }
 
-    @Override 
-    public Publisher save(PublisherDto publisherDto) {
-         Publisher publisher = (publisherDto.getId() != null)
-                ? publisherRepository.findById(publisherDto.getId())
-                        .orElseThrow(() -> new EntityNotFoundException("Book not found: " + publisherDto.getId()))
-                : new Publisher();
+    @Override
+    public PublisherDto save(PublisherDto publisherDto) {
+        if (checkIfExists(publisherDto) && publisherDto.getId() == null) {
+            throw new IllegalStateException("publisher already exists");
+        } else {
+            Publisher publisher = (publisherDto.getId() != null)
+                    ? publisherRepository.findById(publisherDto.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("Genre not found: " + publisherDto.getId()))
+                    : new Publisher();
 
-        publisher.setName(publisherDto.getName());
-        publisher.setAddress(publisherDto.getAddress());
+            publisher.setName(publisherDto.getName());
 
-        return publisherRepository.save(publisher);
+            PublisherDto newDto = new PublisherDto(publisherRepository.save(publisher));
+            return newDto;
+        }
     }
 
+
     @Override
-    public void deleteById(Long id) {
-        publisherRepository.deleteById(id);
+    public Boolean deleteById(Long id) {
+        Publisher publisher = publisherRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("publisher not found: " + id));
+
+        publisherRepository.deleteById(publisher.getId());
+        return true;
     }
 
     @Override

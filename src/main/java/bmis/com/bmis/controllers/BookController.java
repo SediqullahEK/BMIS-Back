@@ -56,19 +56,6 @@ public class BookController {
         }
     }
 
-    @GetMapping("/edit")
-    public String editBook(@RequestParam("id") Long id, Model model, HttpServletRequest request) {
-
-        BookDto bookDto = bookService.findDtoById(id);
-
-        model.addAttribute("bookDto", bookDto);
-        model.addAttribute("genres", genreService.findAll());
-        model.addAttribute("publishers", publisherService.findAll());
-        model.addAttribute("pageTitle", "Edit Book");
-
-        return "books/edit";
-    }
-
     @PutMapping("/update/{id}")
     public ResponseEntity<BookDto> updateBook(@RequestBody String userRequest, @PathVariable Long id) throws Exception {
         if (userRequest == null || userRequest.isEmpty()) {
