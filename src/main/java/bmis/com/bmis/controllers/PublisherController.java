@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.google.gson.Gson;
-
-import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.models.dtos.PublisherDto;
 import bmis.com.bmis.services.PublisherService;
 @RestController

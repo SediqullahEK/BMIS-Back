@@ -8,9 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import bmis.com.bmis.models.Genre;
 import bmis.com.bmis.models.Publisher;
-import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.models.dtos.PublisherDto;
 import bmis.com.bmis.repositories.PublisherRepository;
 import bmis.com.bmis.services.PublisherService;
