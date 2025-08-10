@@ -1,4 +1,6 @@
 package bmis.com.bmis.controllers;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +20,18 @@ public class GenreController {
     @Autowired
     private GenreService genreService;
 
+    @GetMapping("/all")
+    public ResponseEntity<List<GenreDto>> allGenres() {
+
+        List<GenreDto> genrePage = genreService.findAll();
+
+        return ResponseEntity.ok(genrePage);
+    }
+
     @GetMapping("/list")
     public ResponseEntity<Page<GenreDto>> listGenres(Pageable pageable) {
 
-        Page<GenreDto> genrePage = genreService.findAll(pageable);
+        Page<GenreDto> genrePage = genreService.listAll(pageable);
 
         return ResponseEntity.ok(genrePage);
     }

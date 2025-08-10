@@ -1,5 +1,4 @@
 package bmis.com.bmis.controllers;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,18 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import com.google.gson.Gson;
 
+import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.models.dtos.PublisherDto;
 import bmis.com.bmis.services.PublisherService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/api/publishers")
 public class PublisherController {
@@ -26,10 +20,19 @@ public class PublisherController {
     @Autowired
     private PublisherService publisherService;
 
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<PublisherDto>> allGenres() {
+
+        List<PublisherDto> publishers = publisherService.findAll();
+
+        return ResponseEntity.ok(publishers);
+    }
+
     @GetMapping("/list")
     public ResponseEntity<Page<PublisherDto>> listGenres(Pageable pageable) {
 
-        Page<PublisherDto> genrePage = publisherService.findAll(pageable);
+        Page<PublisherDto> genrePage = publisherService.listAll(pageable);
 
         return ResponseEntity.ok(genrePage);
     }

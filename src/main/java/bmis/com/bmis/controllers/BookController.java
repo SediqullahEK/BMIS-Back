@@ -2,13 +2,6 @@ package bmis.com.bmis.controllers;
 
 import bmis.com.bmis.models.dtos.BookDto;
 import bmis.com.bmis.services.BookService;
-import bmis.com.bmis.services.GenreService;
-import bmis.com.bmis.services.PublisherService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
-import java.util.List;
-import java.util.Map;
 
 import com.google.gson.Gson;
 
@@ -17,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,10 +18,6 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
-    @Autowired
-    private GenreService genreService;
-    @Autowired
-    private PublisherService publisherService;
 
     @GetMapping("/list")
     public ResponseEntity<Page<BookDto>> listBooks(Pageable pageable) {

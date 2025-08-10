@@ -1,6 +1,5 @@
 package bmis.com.bmis.models.dtos;
 
-import bmis.com.bmis.models.Genre;
 import bmis.com.bmis.models.Publisher;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;

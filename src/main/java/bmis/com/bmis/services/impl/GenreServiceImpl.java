@@ -5,14 +5,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import bmis.com.bmis.models.Book;
 import bmis.com.bmis.models.Genre;
 import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.repositories.GenreRepository;
 import bmis.com.bmis.services.GenreService;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class GenreServiceImpl implements GenreService {
@@ -21,7 +22,17 @@ public class GenreServiceImpl implements GenreService {
     private GenreRepository genreRepository;
 
     @Override
-    public Page<GenreDto> findAll(Pageable pageable) {
+    public List<GenreDto> findAll() {
+
+        List<Genre> genres = genreRepository.findAll();
+
+       return genres.stream()
+                .map(genre -> new GenreDto(genre))
+                .collect(Collectors.toList());
+
+    }
+    @Override
+    public Page<GenreDto> listAll(Pageable pageable) {
 
         Page<Genre> genrPage = genreRepository.findAll(pageable);
 

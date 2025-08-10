@@ -1,4 +1,5 @@
 package bmis.com.bmis.services;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -8,7 +9,8 @@ import bmis.com.bmis.models.Publisher;
 import bmis.com.bmis.models.dtos.PublisherDto;
 
 public interface PublisherService {
-    Page<PublisherDto>  findAll(Pageable pageable);
+    List<PublisherDto>  findAll();
+    Page<PublisherDto>  listAll(Pageable pageable);
     Optional<Publisher> findById(Long id);
     PublisherDto save(PublisherDto publisherDto);
     Boolean deleteById(Long id);

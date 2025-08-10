@@ -1,10 +1,16 @@
 package bmis.com.bmis.services.impl;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import bmis.com.bmis.models.Genre;
 import bmis.com.bmis.models.Publisher;
+import bmis.com.bmis.models.dtos.GenreDto;
 import bmis.com.bmis.models.dtos.PublisherDto;
 import bmis.com.bmis.repositories.PublisherRepository;
 import bmis.com.bmis.services.PublisherService;
@@ -16,8 +22,18 @@ public class PublisherServiceImpl implements PublisherService {
      @Autowired
     private PublisherRepository publisherRepository;
 
+     @Override
+    public List<PublisherDto> findAll() {
+
+        List<Publisher> publishers = publisherRepository.findAll();
+
+       return publishers.stream()
+                .map(publisher -> new PublisherDto(publisher))
+                .collect(Collectors.toList());
+
+    }
     @Override
-    public Page<PublisherDto> findAll(Pageable pageable) {
+    public Page<PublisherDto> listAll(Pageable pageable) {
 
         Page<Publisher> publisherPage = publisherRepository.findAll(pageable);
 

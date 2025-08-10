@@ -1,6 +1,7 @@
 package bmis.com.bmis.services;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -10,7 +11,8 @@ import bmis.com.bmis.models.Genre;
 import bmis.com.bmis.models.dtos.GenreDto;
 
 public interface GenreService {
-    Page<GenreDto> findAll(Pageable pageable);
+    List<GenreDto> findAll();
+    Page<GenreDto> listAll(Pageable pageable);
     Optional<Genre> findById(Long id);
     GenreDto save(GenreDto genreDto);
     Boolean deleteById(Long id);
